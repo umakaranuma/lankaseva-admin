@@ -302,17 +302,49 @@ const Services = () => {
                       <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Phone Number</label>
                       <input required type="text" value={phone.number} onChange={e => handlePhoneChange(index, 'number', e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)' }} />
                     </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Label (EN)</label>
-                      <input required type="text" value={phone.label_en} onChange={e => handlePhoneChange(index, 'label_en', e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Label (EN)</label>
+                      <select 
+                        value={["General", "Emergency", "Reception", "Inquiry", "Hotline"].includes(phone.label_en) ? phone.label_en : 'Other'} 
+                        onChange={e => handlePhoneChange(index, 'label_en', e.target.value === 'Other' ? '' : e.target.value)}
+                        style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)' }}
+                      >
+                        {["General", "Emergency", "Reception", "Inquiry", "Hotline"].map(l => <option key={l} value={l} style={{ background: '#0f172a' }}>{l}</option>)}
+                        <option value="Other" style={{ background: '#0f172a' }}>Other...</option>
+                      </select>
+                      {!["General", "Emergency", "Reception", "Inquiry", "Hotline"].includes(phone.label_en) && (
+                        <input required placeholder="Custom EN..." type="text" value={phone.label_en} onChange={e => handlePhoneChange(index, 'label_en', e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)' }} />
+                      )}
                     </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Label (SI)</label>
-                      <input required type="text" value={phone.label_si} onChange={e => handlePhoneChange(index, 'label_si', e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)' }} />
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Label (SI)</label>
+                      <select 
+                        value={["සාමාන්‍ය", "හදිසි", "පිළිගැනීමේ", "විමසීම්", "ක්ෂණික ඇමතුම්"].includes(phone.label_si) ? phone.label_si : 'Other'} 
+                        onChange={e => handlePhoneChange(index, 'label_si', e.target.value === 'Other' ? '' : e.target.value)}
+                        style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)' }}
+                      >
+                        {["සාමාන්‍ය", "හදිසි", "පිළිගැනීමේ", "විමසීම්", "ක්ෂණික ඇමතුම්"].map(l => <option key={l} value={l} style={{ background: '#0f172a' }}>{l}</option>)}
+                        <option value="Other" style={{ background: '#0f172a' }}>Other...</option>
+                      </select>
+                      {!["සාමාන්‍ය", "හදිසි", "පිළිගැනීමේ", "විමසීම්", "ක්ෂණික ඇමතුම්"].includes(phone.label_si) && (
+                        <input required placeholder="Custom SI..." type="text" value={phone.label_si} onChange={e => handlePhoneChange(index, 'label_si', e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)' }} />
+                      )}
                     </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Label (TA)</label>
-                      <input required type="text" value={phone.label_ta} onChange={e => handlePhoneChange(index, 'label_ta', e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)' }} />
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Label (TA)</label>
+                      <select 
+                        value={["பொது", "அவசரம்", "வரவேற்பு", "விசாரணை", "துரித எண்"].includes(phone.label_ta) ? phone.label_ta : 'Other'} 
+                        onChange={e => handlePhoneChange(index, 'label_ta', e.target.value === 'Other' ? '' : e.target.value)}
+                        style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)' }}
+                      >
+                        {["பொது", "அவசரம்", "வரவேற்பு", "விசாரணை", "துரித எண்"].map(l => <option key={l} value={l} style={{ background: '#0f172a' }}>{l}</option>)}
+                        <option value="Other" style={{ background: '#0f172a' }}>Other...</option>
+                      </select>
+                      {!["பொது", "அவசரம்", "வரவேற்பு", "விசாரணை", "துரித எண்"].includes(phone.label_ta) && (
+                        <input required placeholder="Custom TA..." type="text" value={phone.label_ta} onChange={e => handlePhoneChange(index, 'label_ta', e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid var(--glass-border)' }} />
+                      )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', height: '36px', padding: '0 0.5rem' }}>
                       <input type="radio" name="primary_phone" checked={phone.is_primary} onChange={() => handlePhoneChange(index, 'is_primary', true)} style={{ marginRight: '4px' }} title="Set as Primary" />
