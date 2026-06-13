@@ -6,6 +6,9 @@ import './App.css';
 
 import Users from './pages/Users';
 import Categories from './pages/Categories';
+import Services from './pages/Services';
+import Reviews from './pages/Reviews';
+import Reports from './pages/Reports';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('admin_token');
@@ -27,9 +30,9 @@ function App() {
           <Route index element={<DashboardPage />} />
           <Route path="users" element={<Users />} />
           <Route path="categories" element={<Categories />} />
-          {/* <Route path="services" element={<Services />} />
+          <Route path="services" element={<Services />} />
           <Route path="reviews" element={<Reviews />} />
-          <Route path="reports" element={<Reports />} /> */}
+          <Route path="reports" element={<Reports />} />
         </Route>
       </Routes>
     </Router>
