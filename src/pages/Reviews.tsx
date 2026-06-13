@@ -108,12 +108,12 @@ const Reviews = () => {
 
       {/* Single View Modal */}
       {selectedReview && (
-        <div style={{
+        <div className="modal-backdrop" style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
           background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }} onClick={() => setSelectedReview(null)}>
-          <div className="glass-panel" style={{ 
+          <div className="glass-panel modal-content" style={{ 
             width: '100%', maxWidth: '600px', padding: '2rem', margin: '1rem',
             background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '16px' 
           }} onClick={e => e.stopPropagation()}>

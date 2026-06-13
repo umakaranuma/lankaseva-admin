@@ -212,12 +212,12 @@ const Services = () => {
 
       {/* Full-Screen Add Service Modal */}
       {showAddModal && (
-        <div style={{
+        <div className="modal-backdrop" style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
           background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(8px)',
           display: 'flex', justifyContent: 'center', zIndex: 1000, overflowY: 'auto'
         }}>
-          <div className="glass-panel" style={{ 
+          <div className="glass-panel modal-content" style={{ 
             width: '100%', maxWidth: '1000px', padding: '2rem', margin: '2rem 1rem', height: 'fit-content',
             background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', borderRadius: '16px' 
           }}>
