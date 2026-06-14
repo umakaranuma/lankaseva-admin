@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Plus, Trash2, Building2, AlertCircle, X, Search, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, Building2, AlertCircle, X, Search, RefreshCw, ExternalLink, Phone, MapPin, Globe } from 'lucide-react';
 import api from '../lib/api';
 import { toast } from '../lib/toast';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -10,10 +10,20 @@ interface Service {
   id: number;
   code: string;
   name_en: string;
+  name_si: string;
+  name_ta: string;
   department_en: string;
+  department_si: string;
+  department_ta: string;
   district: string;
   category: string;
+  address_en: string;
+  lat: number;
+  lng: number;
+  website: string | null;
+  whatsapp: string | null;
   is_emergency: boolean;
+  phones?: Phone[];
 }
 
 interface Phone {
@@ -52,6 +62,8 @@ const Services = () => {
   const [filterDistrict, setFilterDistrict] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const fetchData = async (silent = false) => {
     if (!silent) setLoading(true); else setRefreshing(true);
@@ -103,6 +115,16 @@ const Services = () => {
     } catch {
       toast('Failed to delete service', 'error');
     }
+  };
+
+  const openDetail = async (svc: Service) => {
+    setSelectedService(svc);
+    setDetailLoading(true);
+    try {
+      const res = await api.get(`services/${svc.id}/`);
+      setSelectedService(res.data);
+    } catch { /* keep the list-level data */ }
+    finally { setDetailLoading(false); }
   };
 
   const handlePhoneChange = (index: number, field: keyof Phone, value: any) => {
@@ -225,7 +247,7 @@ const Services = () => {
             </thead>
             <tbody>
               {filtered.map(service => (
-                <tr key={service.id}>
+                <tr key={service.id} onClick={() => openDetail(service)} style={{ cursor: 'pointer' }}>
                   <td>
                     <div style={{ fontWeight: 600, marginBottom: '2px' }}>{service.name_en}</div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{service.department_en}</div>
@@ -240,9 +262,19 @@ const Services = () => {
                     )}
                   </td>
                   <td>
-                    <button className="btn btn-ghost text-danger" style={{ padding: '0.35rem 0.5rem' }} onClick={() => setDeleteTarget(service)}>
-                      <Trash2 size={15} />
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.25rem' }}>
+                      {service.website && (
+                        <a href={service.website} target="_blank" rel="noopener noreferrer"
+                          className="btn btn-ghost" style={{ padding: '0.35rem 0.5rem', color: '#38bdf8' }}
+                          onClick={e => e.stopPropagation()} title={service.website}>
+                          <Globe size={14} />
+                        </a>
+                      )}
+                      <button className="btn btn-ghost text-danger" style={{ padding: '0.35rem 0.5rem' }}
+                        onClick={e => { e.stopPropagation(); setDeleteTarget(service); }}>
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -367,6 +399,111 @@ const Services = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Service Detail Modal */}
+      {selectedService && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+          onClick={() => setSelectedService(null)}>
+          <div className="glass-panel" style={{ width: '100%', maxWidth: '620px', padding: '2rem', margin: '1rem', borderRadius: '20px', animation: 'slideUpFade 0.35s cubic-bezier(0.16,1,0.3,1)', maxHeight: '90vh', overflowY: 'auto' }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{selectedService.name_en}</h3>
+                  {selectedService.is_emergency && <span className="badge badge-danger">Emergency</span>}
+                </div>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{selectedService.department_en}</p>
+              </div>
+              <button className="btn btn-ghost" style={{ padding: '0.35rem' }} onClick={() => setSelectedService(null)}><X size={18} /></button>
+            </div>
+
+            {detailLoading ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
+                <RefreshCw size={20} className="spin" />
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {[
+                  { label: 'Code', value: selectedService.code },
+                  { label: 'Category', value: categoriesMap[selectedService.category] || selectedService.category },
+                  { label: 'District', value: selectedService.district },
+                  { label: 'Address', value: selectedService.address_en },
+                  { label: 'Sinhala', value: selectedService.name_si },
+                  { label: 'Tamil', value: selectedService.name_ta },
+                  { label: 'Coordinates', value: selectedService.lat && selectedService.lng ? `${selectedService.lat}, ${selectedService.lng}` : null },
+                ].filter(r => r.value).map(row => (
+                  <div key={row.label} style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '1rem', alignItems: 'flex-start' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', paddingTop: '2px' }}>{row.label}</span>
+                    <span style={{ fontWeight: 500, fontSize: '0.9rem', wordBreak: 'break-all' }}>{row.value}</span>
+                  </div>
+                ))}
+
+                {/* Phone numbers */}
+                {selectedService.phones && selectedService.phones.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '1rem', alignItems: 'flex-start' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', paddingTop: '2px' }}>Phones</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {selectedService.phones.map((p, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <a href={`tel:${p.number}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#38bdf8', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600 }}>
+                            <Phone size={13} /> {p.number}
+                          </a>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{p.label_en}</span>
+                          {p.is_primary && <span className="badge badge-success" style={{ fontSize: '0.65rem', padding: '1px 6px' }}>Primary</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Website link */}
+                {selectedService.website && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '1rem', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.82rem' }}>Website</span>
+                    <a href={selectedService.website} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#38bdf8', textDecoration: 'none', fontSize: '0.875rem', fontWeight: 500, wordBreak: 'break-all' }}>
+                      <Globe size={14} />
+                      {selectedService.website}
+                      <ExternalLink size={12} style={{ flexShrink: 0 }} />
+                    </a>
+                  </div>
+                )}
+
+                {/* WhatsApp */}
+                {selectedService.whatsapp && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '1rem', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.82rem' }}>WhatsApp</span>
+                    <a href={`https://wa.me/${selectedService.whatsapp}`} target="_blank" rel="noopener noreferrer"
+                      style={{ color: '#34d399', textDecoration: 'none', fontSize: '0.875rem', fontWeight: 500 }}>
+                      {selectedService.whatsapp}
+                    </a>
+                  </div>
+                )}
+
+                {/* Map link */}
+                {selectedService.lat && selectedService.lng && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '1rem', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.82rem' }}>Map</span>
+                    <a href={`https://www.google.com/maps?q=${selectedService.lat},${selectedService.lng}`}
+                      target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#fb923c', textDecoration: 'none', fontSize: '0.875rem', fontWeight: 500 }}>
+                      <MapPin size={14} /> View on Google Maps <ExternalLink size={12} />
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.75rem', gap: '0.75rem' }}>
+              <button className="btn btn-ghost" onClick={() => setSelectedService(null)}>Close</button>
+              <button className="btn btn-ghost text-danger" style={{ border: '1px solid rgba(239,68,68,0.2)', gap: '0.4rem' }}
+                onClick={() => { setDeleteTarget(selectedService); setSelectedService(null); }}>
+                <Trash2 size={15} /> Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
